@@ -4,7 +4,7 @@ from scipy.integrate import quad
 
 # Вхідні параметри
 N_STUDENT = 6       # Номер у журналі n = 6 
-ORDER_N = 10        # Кількість гармонік N = 10 
+ORDER_N =10     # Кількість гармонік N = 10 
 A_LIMIT = -np.pi    # Інтервал [-pi, pi]
 B_LIMIT = np.pi
 W0 = 1.0            # Базова частота w0 = 2*pi / (2*pi) = 1.0
@@ -14,10 +14,10 @@ W0 = 1.0            # Базова частота w0 = 2*pi / (2*pi) = 1.0
 #Точне аналітичне обчислення f(x)
 def target_function(x):
     """
-    f(x) = 6 * x * exp(-x^2 / 6).
+    f(x) = 6 * x^6 * exp(-x^2 / 6).
     Функція є непарною на [-pi, pi].
     """
-    return N_STUDENT * x * np.exp(- (x ** 2) / N_STUDENT)
+    return (x**N_STUDENT) * np.exp(- (x ** 2) / N_STUDENT)
 
 
 def integrand_cos(x, k):
@@ -72,7 +72,7 @@ def calculate_relative_error(a_coeffs, b_coeffs, N, num_points=2000):
 # ЗАВДАННЯ 6: Збереження у файл
 def save_results_to_file(filename, N, a_coeffs, b_coeffs, rel_error):
     with open(filename, 'w', encoding='utf-8') as f:
-        f.write(f"Функція: f(x) = {N_STUDENT} * x * exp(-x^2 / {N_STUDENT})\n")
+        f.write(f"Функція: f(x) =  x^6 * exp(-x^2 / {N_STUDENT})\n")
         f.write(f"Інтервал: [-pi, pi]\n")
         f.write(f"Порядок наближення N = {N}\n")
         f.write(f"Відносна похибка: {rel_error:.4f} %\n\n")
@@ -96,7 +96,7 @@ def plot_results(N, a_coeffs, b_coeffs):
     fig.suptitle(f"Лабораторна робота №1 (n = {N_STUDENT}, N = {N})", fontsize=13, fontweight='bold')
 
     #Порівняння сигналів
-    axs[0].plot(x, y_exact, label=r"Точна $f(x) = 6x e^{-x^2/6}$", color='black', linewidth=2)
+    axs[0].plot(x, y_exact, label=r"Точна $f(x) = x^6 e^{-x^2/6}$", color='black', linewidth=2)
     axs[0].plot(x, y_approx, label=f"Ряд Фур'є (N={N})", color='red', linestyle='--', linewidth=1.8)
     axs[0].set_title("Наближення функції на відрізку $[-\\pi, \\pi]$")
     axs[0].set_xlabel("x")
