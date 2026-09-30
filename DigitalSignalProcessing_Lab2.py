@@ -18,12 +18,11 @@ def dft_single_harmonic(signal, k, N):
         angle = 2.0 * np.pi * k * i / N
         a_k += signal[i] * np.cos(angle)
         b_k += signal[i] * np.sin(angle)
-        mul_count += 4
-        add_count += 2
-
+        mul_count += 2
+        if i>0:
+            add_count+=2
     a_k = a_k / N
     b_k = -b_k / N
-    mul_count += 2
 
     return a_k, b_k, mul_count, add_count
 
