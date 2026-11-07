@@ -1,0 +1,86 @@
+import time
+import cmath
+
+
+def compute_dft(x):
+    """Класичне ДПФ із підрахунком операцій"""
+    n = len(x)
+    additions = 0
+    multiplications = 0
+    result = [0.0j] * n
+
+    for k in range(n):
+        for m in range(n):
+            angle = -2j * cmath.pi * k * m / n
+            result[k] += x[m] * cmath.exp(angle)
+
+            multiplications += 2
+            if m > 0:
+                additions += 2
+
+    return result, additions, multiplications
+
+
+def compute_fft(x):
+    """Швидке перетворення Фур'є з підрахунком операцій"""
+    n = len(x)
+    if n <= 1:
+        return x, 0, 0
+
+    even, add_e, mult_e = compute_fft(x[0::2])
+    odd, add_o, mult_o = compute_fft(x[1::2])
+
+    t = [cmath.exp(-2j * cmath.pi * k / n) * odd[k] for k in range(n // 2)]
+
+    additions = add_e + add_o + n
+    multiplications = mult_e + mult_o + n // 2
+
+    result = [0.0j] * n
+    for k in range(n // 2):
+        result[k] = even[k] + t[k]
+        result[k + n // 2] = even[k] - t[k]
+
+    return result, additions, multiplications
+
+
+def analyze_algorithms():
+    # Відліки з частини II Лабораторної 2 (двійковий код 01100110 для n=6)
+    signal_n8 = [0, 1, 1, 0, 0, 1, 1, 0]
+
+    # Вектор із частини I Лабораторної 2 (N = 10 + 6 = 16)
+    signal_n16 = [
+        1.87, 4.75, 3.66, 2.99, 0.78, 0.78, 0.29, 4.33,
+        3.01, 3.54, 0.10, 4.85, 4.16, 1.06, 0.91, 0.92
+    ]
+
+    datasets = {"N=8": signal_n8, "N=16": signal_n16}
+
+    for label, data in datasets.items():
+
+        # Обчислення ДПФ
+        start_dft = time.perf_counter()
+        res_dft, add_dft, mult_dft = compute_dft(data)
+        time_dft = time.perf_counter() - start_dft
+
+        # Обчислення ШПФ
+        start_fft = time.perf_counter()
+        res_fft, add_fft, mult_fft = compute_fft(data)
+        time_fft = time.perf_counter() - start_fft
+
+        # 1. Таблиця порівняння коефіцієнтів
+        print("\nПорівняння розрахованих значень C_k:")
+        print(f"{'k':>3} | {'Результат ДПФ':>24} | {'Результат ШПФ':>24}")
+        print("-" * 57)
+        for k in range(len(data)):
+            dft_str = f"{res_dft[k].real:8.4f} {res_dft[k].imag:+8.4f}j"
+            fft_str = f"{res_fft[k].real:8.4f} {res_fft[k].imag:+8.4f}j"
+            print(f"{k:>3} | {dft_str:>24} | {fft_str:>24}")
+
+        # 2. Порівняння швидкості та кількості операцій
+        print("\nПоказники ефективності:")
+        print(f"ДПФ: Час: {time_dft:.6f} сек | Додавання: {add_dft:>4} | Множення: {mult_dft:>4}")
+        print(f"ШПФ: Час: {time_fft:.6f} сек | Додавання: {add_fft:>4} | Множення: {mult_fft:>4}")
+
+
+if __name__ == "__main__":
+    analyze_algorithms()
